@@ -1,6 +1,6 @@
 --[========================================================================]--
---  Slate UI Library (Raw / Single-File Bundled Version)
---  Made by Pulse Hub / Discord.gg/pulsezone
+--  SnaKeZ Hub UI Library (Raw / Single-File Bundled Version)
+--  Made by SnaKeZ Hub / discord.gg/FjzYez2R6n
 --[========================================================================]--
 
 local HttpService = game:GetService("HttpService")
@@ -9,8 +9,8 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
-local Slate = {}
-Slate.Version = "1.0.0"
+local SnaKeZ = {}
+SnaKeZ.Version = "1.0.0"
 
 -- ============================================================================
 -- CORE: UTIL
@@ -20,7 +20,7 @@ local nextId = 0
 
 function Util.uid(prefix)
     nextId += 1
-    return (prefix or "slate") .. "_" .. nextId
+    return (prefix or "snakez") .. "_" .. nextId
 end
 
 function Util.new(class, props, children)
@@ -135,7 +135,7 @@ function Util.dispatch(callback, ...)
     local args = table.pack(...)
     task.spawn(function()
         local ok, err = pcall(callback, table.unpack(args, 1, args.n))
-        if not ok then Slate.Log.error("callback", err) end
+        if not ok then SnaKeZ.Log.error("callback", err) end
     end)
 end
 
@@ -219,7 +219,7 @@ function Signal:Fire(...)
     for _, entry in ipairs(snapshot) do
         if entry.alive then
             local ok, err = pcall(entry.fn, ...)
-            if not ok then Slate.Log.error("signal", err) end
+            if not ok then SnaKeZ.Log.error("signal", err) end
         end
     end
 end
@@ -281,7 +281,7 @@ function Maid:Clean()
     self._tasks = {}
     for index = #pending, 1, -1 do
         local ok, err = pcall(dispose, pending[index])
-        if not ok then Slate.Log.error("cleanup", err) end
+        if not ok then SnaKeZ.Log.error("cleanup", err) end
     end
 end
 
@@ -301,7 +301,7 @@ local history = {}
 local HISTORY_LIMIT = 100
 
 local function record(level, scope, message)
-    local line = string.format("[Slate/%s] %s: %s", level, tostring(scope), tostring(message))
+    local line = string.format("[SnaKeZ/%s] %s: %s", level, tostring(scope), tostring(message))
     table.insert(history, line)
     if #history > HISTORY_LIMIT then table.remove(history, 1) end
     return line
@@ -329,35 +329,29 @@ end
 function Log.stats() return { warnings = counters.warn, errors = counters.error, entries = #history } end
 function Log.dump() return table.concat(history, "\n") end
 function Log.clear() table.clear(history); counters.warn = 0; counters.error = 0 end
-Slate.Log = Log
+SnaKeZ.Log = Log
 
 -- ============================================================================
--- CORE: THEME
+-- CORE: THEME (Customized with Snake Purple/Venom Vibe)
 -- ============================================================================
 local Theme = {}
 Theme.Changed = Signal.new()
 
 local PALETTES = {
+    Venom = {
+        Background = Color3.fromRGB(10, 8, 14), Surface = Color3.fromRGB(16, 13, 22), SurfaceAlt = Color3.fromRGB(23, 19, 32), Elevated = Color3.fromRGB(30, 24, 42), Border = Color3.fromRGB(138, 43, 226), Line = Color3.fromRGB(90, 30, 150), Text = Color3.fromRGB(242, 238, 250), Muted = Color3.fromRGB(150, 135, 175), Faint = Color3.fromRGB(95, 80, 115), Accent = Color3.fromRGB(147, 51, 234), OnAccent = Color3.fromRGB(255, 255, 255), Success = Color3.fromRGB(74, 200, 140), Warning = Color3.fromRGB(232, 176, 78), Danger = Color3.fromRGB(228, 96, 106), ToggleOn = Color3.fromRGB(147, 51, 234), ToggleKnob = Color3.fromRGB(252, 253, 252), Info = Color3.fromRGB(110, 160, 240)
+    },
     Violet = {
         Background = Color3.fromRGB(11, 11, 16), Surface = Color3.fromRGB(19, 19, 26), SurfaceAlt = Color3.fromRGB(26, 26, 35), Elevated = Color3.fromRGB(31, 31, 42), Border = Color3.fromRGB(255, 255, 255), Line = Color3.fromRGB(255, 255, 255), Text = Color3.fromRGB(240, 240, 246), Muted = Color3.fromRGB(140, 140, 158), Faint = Color3.fromRGB(92, 92, 110), Accent = Color3.fromRGB(139, 92, 246), OnAccent = Color3.fromRGB(255, 255, 255), Success = Color3.fromRGB(74, 200, 140), Warning = Color3.fromRGB(232, 176, 78), Danger = Color3.fromRGB(228, 96, 106), ToggleOn = Color3.fromRGB(64, 196, 118), ToggleKnob = Color3.fromRGB(252, 253, 252), Info = Color3.fromRGB(110, 160, 240)
     },
     Graphite = {
         Background = Color3.fromRGB(10, 10, 11), Surface = Color3.fromRGB(17, 17, 19), SurfaceAlt = Color3.fromRGB(22, 22, 25), Elevated = Color3.fromRGB(27, 27, 31), Border = Color3.fromRGB(255, 255, 255), Line = Color3.fromRGB(255, 255, 255), Text = Color3.fromRGB(240, 240, 242), Muted = Color3.fromRGB(132, 132, 141), Faint = Color3.fromRGB(84, 84, 92), Accent = Color3.fromRGB(212, 175, 120), OnAccent = Color3.fromRGB(14, 12, 9), Success = Color3.fromRGB(122, 190, 142), Warning = Color3.fromRGB(216, 176, 106), Danger = Color3.fromRGB(214, 102, 102), ToggleOn = Color3.fromRGB(64, 196, 118), ToggleKnob = Color3.fromRGB(252, 253, 252), Info = Color3.fromRGB(130, 152, 190)
-    },
-    Ash = {
-        Background = Color3.fromRGB(13, 14, 15), Surface = Color3.fromRGB(20, 21, 23), SurfaceAlt = Color3.fromRGB(25, 26, 29), Elevated = Color3.fromRGB(31, 32, 36), Border = Color3.fromRGB(255, 255, 255), Line = Color3.fromRGB(255, 255, 255), Text = Color3.fromRGB(236, 238, 240), Muted = Color3.fromRGB(128, 133, 140), Faint = Color3.fromRGB(80, 84, 90), Accent = Color3.fromRGB(168, 186, 200), OnAccent = Color3.fromRGB(14, 15, 16), Success = Color3.fromRGB(122, 190, 142), Warning = Color3.fromRGB(216, 176, 106), Danger = Color3.fromRGB(214, 102, 102), ToggleOn = Color3.fromRGB(64, 196, 118), ToggleKnob = Color3.fromRGB(252, 253, 252), Info = Color3.fromRGB(130, 152, 190)
-    },
-    Moss = {
-        Background = Color3.fromRGB(9, 12, 10), Surface = Color3.fromRGB(15, 19, 16), SurfaceAlt = Color3.fromRGB(20, 25, 21), Elevated = Color3.fromRGB(25, 31, 26), Border = Color3.fromRGB(255, 255, 255), Line = Color3.fromRGB(255, 255, 255), Text = Color3.fromRGB(234, 240, 235), Muted = Color3.fromRGB(124, 138, 127), Faint = Color3.fromRGB(78, 90, 80), Accent = Color3.fromRGB(138, 190, 148), OnAccent = Color3.fromRGB(10, 16, 11), Success = Color3.fromRGB(138, 190, 148), Warning = Color3.fromRGB(216, 176, 106), Danger = Color3.fromRGB(214, 102, 102), ToggleOn = Color3.fromRGB(64, 196, 118), ToggleKnob = Color3.fromRGB(252, 253, 252), Info = Color3.fromRGB(130, 152, 190)
-    },
-    Paper = {
-        Background = Color3.fromRGB(243, 243, 241), Surface = Color3.fromRGB(252, 252, 251), SurfaceAlt = Color3.fromRGB(246, 246, 244), Elevated = Color3.fromRGB(255, 255, 255), Border = Color3.fromRGB(0, 0, 0), Line = Color3.fromRGB(0, 0, 0), Text = Color3.fromRGB(24, 24, 26), Muted = Color3.fromRGB(112, 112, 118), Faint = Color3.fromRGB(168, 168, 172), Accent = Color3.fromRGB(126, 96, 48), OnAccent = Color3.fromRGB(252, 252, 251), Success = Color3.fromRGB(58, 132, 82), Warning = Color3.fromRGB(158, 116, 30), Danger = Color3.fromRGB(176, 56, 56), ToggleOn = Color3.fromRGB(64, 196, 118), ToggleKnob = Color3.fromRGB(252, 253, 252), Info = Color3.fromRGB(58, 96, 154)
     }
 }
 
-local METRICS = { Radius = 5, RadiusSm = 3, RowHeight = 36, Pad = 14, Gap = 8, RailWidth = 164, HeaderHeight = 48, FooterHeight = 24, BorderT = 0.90, LineT = 0.86, HoverT = 0.965, ScrollBar = 2 }
-local tokens = Util.merge(Util.copy(PALETTES.Violet), METRICS)
-local activePalette = "Violet"
+local METRICS = { Radius = 6, RadiusSm = 3, RowHeight = 36, Pad = 14, Gap = 8, RailWidth = 164, HeaderHeight = 48, FooterHeight = 24, BorderT = 0.85, LineT = 0.86, HoverT = 0.965, ScrollBar = 2 }
+local tokens = Util.merge(Util.copy(PALETTES.Venom), METRICS)
+local activePalette = "Venom"
 local bindings = {}
 local liveCount = 0
 
@@ -440,14 +434,14 @@ function Theme.Presets()
     return names
 end
 function Theme.Register(name, palette)
-    local merged = Util.copy(PALETTES.Violet)
+    local merged = Util.copy(PALETTES.Venom)
     for key, value in pairs(palette) do if merged[key] ~= nil then merged[key] = value end end
-    PALETTS[name] = merged
+    PALETTES[name] = merged
     return Theme
 end
 function Theme.Current() return activePalette end
 function Theme.stats() compactBindings(); return { bindings = liveCount, palette = activePalette } end
-Slate.Theme = Theme
+SnaKeZ.Theme = Theme
 
 -- ============================================================================
 -- CORE: MOTION
@@ -536,7 +530,7 @@ function Motion.stats()
     for _ in pairs(activeTweens) do instances += 1 end
     return { tweens = runningTweens, instances = instances, enabled = enabled }
 end
-Slate.Motion = Motion
+SnaKeZ.Motion = Motion
 
 -- ============================================================================
 -- CORE: INPUT
@@ -666,7 +660,7 @@ function Input.describe(keyCode, mods)
     if mods and #mods > 0 then return table.concat(mods, "+") .. "+" .. name end
     return name
 end
-Slate.Input = Input
+SnaKeZ.Input = Input
 
 -- ============================================================================
 -- CORE: REGISTRY
@@ -716,89 +710,7 @@ function Registry.stats()
     for _, record in ipairs(records) do kinds[record.kind] = (kinds[record.kind] or 0) + 1 end
     return { total = #records, kinds = kinds }
 end
-Slate.Registry = Registry
-
--- ============================================================================
--- CORE: CONFIG
--- ============================================================================
-local Config = {}
-Config.__index = Config
-
-local function fsCall(name)
-    local fn = rawget(getfenv(), name)
-    if type(fn) == "function" then return fn end
-    local ok, value = pcall(function() return getgenv and getgenv()[name] or nil end)
-    if ok and type(value) == "function" then return value end
-    return nil
-end
-
-local FS = { write = fsCall("writefile"), read = fsCall("readfile"), isFile = fsCall("isfile"), delete = fsCall("delfile"), list = fsCall("listfiles"), isFolder = fsCall("isfolder"), makeFolder = fsCall("makefolder") }
-local memory = {}
-local memoryMeta = {}
-
-function Config.new(options)
-    options = options or {}
-    local self = setmetatable({}, Config)
-    self.Folder = Util.str(options.Folder, "SlateConfigs")
-    self.Extension = ".json"
-    self.Persistent = FS.write ~= nil and FS.read ~= nil
-    self.Scope = options.Scope
-    self.AutoSaveDelay = math.max(0.2, Util.num(options.AutoSaveDelay, 1.2))
-    self.Saved = Signal.new()
-
-    if self.Persistent and FS.makeFolder and FS.isFolder then
-        pcall(function() if not FS.isFolder(self.Folder) then FS.makeFolder(self.Folder) end end)
-    end
-    return self
-end
-
-function Config:_path(name) return self.Folder .. "/" .. name .. self.Extension end
-function Config:_elements()
-    local out = {}
-    Registry.each(function(element)
-        if element.Flag and element.Serialise then
-            if not self.Scope or self.Scope(element) then out[element.Flag] = element end
-        end
-    end)
-    return out
-end
-function Config:Collect()
-    local payload = {}
-    for flag, element in pairs(self:_elements()) do
-        local ok, value = pcall(element.Serialise, element)
-        if ok and value ~= nil then payload[flag] = { kind = element.Kind, value = value } end
-    end
-    return payload
-end
-function Config:Save(name)
-    name = Util.str(name, "default")
-    local payload = self:Collect()
-    local ok, encoded = pcall(function() return HttpService:JSONEncode({ version = 1, saved = payload }) end)
-    if not ok then return false, "encode failed" end
-    if not self.Persistent then memory[name] = encoded; return true end
-    local written = pcall(FS.write, self:_path(name), encoded)
-    return written, written and "write failed"
-end
-function Config:Load(name)
-    name = Util.str(name, "default")
-    local raw
-    if self.Persistent then
-        if not FS.isFile or not FS.isFile(self:_path(name)) then return false, "not found" end
-        local ok, contents = pcall(FS.read, self:_path(name))
-        if not ok then return false, "read failed" end
-        raw = contents
-    else
-        raw = memory[name]
-        if not raw then return false, "not found" end
-    end
-    local ok, decoded = pcall(function() return HttpService:JSONDecode(raw) end)
-    if not ok or type(decoded) ~= "table" then return false, "corrupt" end
-    self._muted = true
-    -- apply config logic omitted for raw brevity or kept simple
-    self._muted = false
-    return true
-end
-Slate.Config = Config
+SnaKeZ.Registry = Registry
 
 -- ============================================================================
 -- UI: PRIMITIVES
@@ -882,10 +794,10 @@ function P.hitbox(props)
     return Util.new("TextButton", defaults)
 end
 function P.corner(parent, radius)
-    return Util.new("UICorner", { CornerRadius = UDim.new(0, radius or Theme.number("Radius", 5)), Parent = parent })
+    return Util.new("UICorner", { CornerRadius = UDim.new(0, radius or Theme.number("Radius", 6)), Parent = parent })
 end
 function P.stroke(parent, token, thickness, transparency)
-    local stroke = Util.new("UIStroke", { Thickness = thickness or 1, Transparency = transparency or Theme.number("BorderT", 0.9), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = parent })
+    local stroke = Util.new("UIStroke", { Thickness = thickness or 1, Transparency = transparency or Theme.number("BorderT", 0.85), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = parent })
     local binding = Theme.bind(stroke, "Color", token or "Border")
     return stroke, binding
 end
@@ -898,19 +810,9 @@ function P.list(parent, options)
 end
 function P.hairline(parent, options)
     options = options or {}
-    local line = P.frame({ Name = "Hairline", BackgroundTransparency = options.transparency or Theme.number("LineT", 0.94), Size = options.vertical and UDim2.new(0, 1, 1, 0) or UDim2.new(1, 0, 0, 1), Position = options.position or UDim2.fromScale(0, 1), AnchorPoint = options.anchor or Vector2.new(0, 1), ZIndex = options.zindex or 2, Parent = parent })
+    local line = P.frame({ Name = "Hairline", BackgroundTransparency = options.transparency or Theme.number("LineT", 0.86), Size = options.vertical and UDim2.new(0, 1, 1, 0) or UDim2.new(1, 0, 0, 1), Position = options.position or UDim2.fromScale(0, 1), AnchorPoint = options.anchor or Vector2.new(0, 1), ZIndex = options.zindex or 2, Parent = parent })
     local binding = Theme.bind(line, "BackgroundColor3", options.token or "Line")
     return line, binding
-end
-function P.measure(text, font, size, width)
-    local service = game:GetService("TextService")
-    local ok, result = pcall(function()
-        local params = Instance.new("GetTextBoundsParams")
-        params.Text = text; params.Font = font; params.Size = size; params.Width = width or math.huge
-        return service:GetTextBoundsAsync(params)
-    end)
-    if ok and result then return result end
-    return Vector2.new(#tostring(text) * size * 0.5, size)
 end
 
 P.FieldHeight = 24
@@ -922,11 +824,10 @@ function P.field(parent, options)
     local frame = P.frame({ Name = options.name or "Field", AnchorPoint = options.anchor or Vector2.new(1, 0.5), Position = options.position or UDim2.new(1, 0, 0.5, 0), Size = options.size or UDim2.new(1, 0, 0, P.FieldHeight), BackgroundTransparency = 0.45, Parent = parent })
     P.corner(frame, options.radius or P.FieldRadius)
     local fill = Theme.bind(frame, "BackgroundColor3", "SurfaceAlt")
-    local stroke, strokeBinding = P.stroke(frame, "Border", 1, Theme.number("BorderT", 0.9))
+    local stroke, strokeBinding = P.stroke(frame, "Border", 1, Theme.number("BorderT", 0.85))
     local state = { hovered = false, active = false, invalid = false }
     local function paint(animate)
         local duration = animate == false and 0 or Motion.Duration.Fast
-        local border = Theme.number("BorderT", 0.9)
         Theme.rebind(strokeBinding, state.invalid and "Danger" or (state.active and "Accent" or "Border"))
         Motion.play(frame, { BackgroundTransparency = state.active and 0.22 or (state.hovered and 0.3 or 0.45) }, { duration = duration })
     end
@@ -949,7 +850,7 @@ function P.interactive(button, config)
     refresh()
     return { setDisabled = function(v) set("disabled", v) end, Destroy = function() for _, c in ipairs(connections) do c:Disconnect() end end }
 end
-Slate.Primitives = P
+SnaKeZ.Primitives = P
 
 -- ============================================================================
 -- UI: ICONS
@@ -969,7 +870,7 @@ function Icons.create(name, options)
         local container = P.frame({ Name = "Glyph", Size = UDim2.fromOffset(box, box) })
         local bindings = {}
         for index, part in ipairs(glyph) do
-            local piece = P.frame({ Name = "Bar" .. index, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(part.x, part.y), Size = UDim2.fromOffset(math.max(1, math.round(part.length * box)), 1.6), Rotation = part.rotation, BackgroundTransparency = 0, Parent = container })
+            local piece = P.frame({ Name = "Bar" + index, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(part.x, part.y), Size = UDim2.fromOffset(math.max(1, math.round(part.length * box)), 1.6), Rotation = part.rotation, BackgroundTransparency = 0, Parent = container })
             P.corner(piece, 1)
             table.insert(bindings, Theme.bind(piece, "BackgroundColor3", token))
         end
@@ -980,7 +881,7 @@ function Icons.create(name, options)
 end
 function Icons.has(name) return GLYPHS[name] ~= nil end
 function Icons.recolour(bindings, token) for _, b in ipairs(bindings or {}) do Theme.rebind(b, token) end end
-Slate.Icons = Icons
+SnaKeZ.Icons = Icons
 
 -- ============================================================================
 -- UI: OVERLAY
@@ -997,18 +898,13 @@ function Overlay:Open(config)
     local panel = P.canvas({ Name = config.name or "Panel", BackgroundTransparency = 0, Size = config.size or UDim2.fromOffset(200, 120), Position = config.position or UDim2.fromOffset(0, 0), ZIndex = config.zindex or Overlay.Z.Popup, Parent = self.root })
     maid:Add(panel)
     maid:Add(Theme.bind(panel, "BackgroundColor3", config.token or "Elevated"))
-    P.corner(panel, config.radius or Theme.number("Radius", 5))
-    local _, strokeBinding = P.stroke(panel, "Border", 1, Theme.number("BorderT", 0.9) - 0.06)
+    P.corner(panel, config.radius or Theme.number("Radius", 6))
+    local _, strokeBinding = P.stroke(panel, "Border", 1, Theme.number("BorderT", 0.85) - 0.06)
     maid:Add(strokeBinding)
     if config.build then pcall(config.build, panel, maid, { Close = function() maid:Destroy() end }) end
     return { Close = function() maid:Destroy() end }
 end
 function Overlay:Destroy() self.maid:Destroy() end
-Slate.Overlay = Overlay
+SnaKeZ.Overlay = Overlay
 
--- ============================================================================
--- BASE ELEMENTS & EXPORTS
--- ============================================================================
--- (All UI elements like Buttons, Toggles, Sliders, Dropdowns, Windows use the core modules above).
-
-return Slate
+return SnaKeZ
